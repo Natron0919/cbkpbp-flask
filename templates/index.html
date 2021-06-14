@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Conferences</title>
+    </head>
+    <body>
+        <h1>Select a Conference</h1>
+        <form action='/team' method='POST'>
+            <label for='conferences'>Select a conference</label>
+            <select name = conferences method="GET" action="/">
+                <option disabled selected value> -- select a conference --</option>
+                {% for conference in conferences %}
+                    <option value="{{conference}}">{{conference}}</option>
+                {% endfor %}
+            </select>
+            <input type='submit' value='Submit' class='btn' />
+        </form>
+    </body>
+</html>

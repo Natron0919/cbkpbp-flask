@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Conferences</title>
+    </head>
+    <body>
+        <h1>{{team}} Overview</h1>
+        <div id="selectPlayers">
+            <form method="POST">
+                <select name="player1" method="GET">
+                    <option disabled selected value> -- select a player --</option>
+                    {% for player in roster %}
+                        <option value="{{player}}">{{player}}</option>
+                    {% endfor %}
+                </select>
+                <select name="player2" method="GET">
+                    <option disabled selected value> -- select a player --</option>
+                    {% for player in roster %}
+                        <option value="{{player}}">{{player}}</option>
+                    {% endfor %}
+                </select>
+                <select name="player3" method="GET">
+                    <option disabled selected value> -- select a player --</option>
+                    {% for player in roster %}
+                        <option value="{{player}}">{{player}}</option>
+                    {% endfor %}
+                </select>
+                <select name="player4" method="GET">
+                    <option disabled selected value> -- select a player --</option>
+                    {% for player in roster %}
+                        <option value="{{player}}">{{player}}</option>
+                    {% endfor %}
+                </select>
+                <select name="player5" method="GET">
+                    <option disabled selected value> -- select a player --</option>
+                    {% for player in roster %}
+                        <option value="{{player}}">{{player}}</option>
+                    {% endfor %}
+                </select>
+                <input type='submit' value='Submit' class='btn' />
+            </form>
+        </div>
+        <div id="completedata">
+            <div id="fourFactors">
+                <h3>Four Factors</h3>
+                <span>eFG%: {{four_di['eFG%']}}%</span><br>
+                <span>TO%: {{four_di['TO%']}}%</span><br>
+                <span>OR%: {{four_di['OR%']}}%</span><br>
+                <span>FTRate: {{four_di['FTRate']}}%</span><br>
+            </div>
+            <div id="additionalStats">
+                <h3>Additional Stats</h3>
+                {% for key, value in new_di.items() %}
+                    <p>{{key}}: {{value}}</p>
+                {% endfor %}
+            </div>
+        </div>
+        <div id="filterdata">
+
+        </div>
+    </body>
+</html>

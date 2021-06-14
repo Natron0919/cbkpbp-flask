@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Conferences</title>
+    </head>
+    <body>
+        <h1 id="con"></h1>
+        <h1>Select a team</h1>
+        <form action='/data' method='POST'>
+            <label for='teams'>Select a team</label>
+            <select name = teams method="GET" action="/">
+                <option disabled selected value> -- select a team --</option>
+                {% for team in teams %}
+                    <option value="{{team}}">{{team}}</option>
+                {% endfor %}
+            </select>
+            <input type='submit' value='Submit' class='btn' />
+        </form>
+        <script>
+            document.getElementById("con").innerHTML = 'Conference: ' + "{{conference}}"
+        </script>
+    </body>
+</html>
