@@ -9,31 +9,31 @@
         <div id="selectPlayers">
             <form method="POST">
                 <select name="player1" method="GET">
-                    <option disabled selected value> -- select a player --</option>
+                    <option label=" "></option>
                     {% for player in roster %}
                         <option value="{{player}}">{{player}}</option>
                     {% endfor %}
                 </select>
                 <select name="player2" method="GET">
-                    <option disabled selected value> -- select a player --</option>
+                    <option label=" "></option>
                     {% for player in roster %}
                         <option value="{{player}}">{{player}}</option>
                     {% endfor %}
                 </select>
                 <select name="player3" method="GET">
-                    <option disabled selected value> -- select a player --</option>
+                    <option label=" "></option>
                     {% for player in roster %}
                         <option value="{{player}}">{{player}}</option>
                     {% endfor %}
                 </select>
                 <select name="player4" method="GET">
-                    <option disabled selected value> -- select a player --</option>
+                    <option label=" "></option>
                     {% for player in roster %}
                         <option value="{{player}}">{{player}}</option>
                     {% endfor %}
                 </select>
                 <select name="player5" method="GET">
-                    <option disabled selected value> -- select a player --</option>
+                    <option label=" "></option>
                     {% for player in roster %}
                         <option value="{{player}}">{{player}}</option>
                     {% endfor %}
@@ -57,7 +57,11 @@
             </div>
         </div>
         <div id="filterdata">
-
+            {% if four_di_filter %}
+                {% for key, value in four_di_filter %}
+                    <p>{{key}}: {{value}}</p>
+                {% endfor %}
+            {% endif %}
         </div>
     </body>
 </html>

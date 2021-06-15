@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, session
+from flask import Flask, render_template, request, session, redirect, url_for
 import cbkpbp
 app = Flask(__name__)
 app.debug = True
@@ -23,9 +23,9 @@ def selectTeam():
         for i in range(0, len(teams)):
             team_list.append(teams[i]['team'])
         teams = team_list
-    
-
-    return render_template('team.html', teams = teams, conference = conference)
+        return render_template('team.html', teams = teams, conference = conference)
+    elif request.method == 'GET':
+        return redirect(url_for('selectConference'))
 
 @app.route("/data", methods=['GET', 'POST'])
 def getData():
@@ -45,7 +45,12 @@ def getData():
         four_di = cbkpbp.getFour(df, team)
         new_di = cbkpbp.getStats(df, team)
         roster = cbkpbp.getRoster(id)
-    return render_template('data.html', team = team, conference = conference, new_di = new_di, four_di = four_di, roster = roster)
+        four_di_filter = None
+        if request.form.get('player1', None) != None:
+            players = request.form['player1']
+            df_filter = cbkpbp.filterdf(df, players)
+            four_di_filter = cbkpbp.getFour(df_filter, team)
+    return render_template('data.html', team = team, conference = conference, new_di = new_di, four_di = four_di, roster = roster, four_di_filter = four_di_filter)
 
 
 if __name__ == "__main__":
