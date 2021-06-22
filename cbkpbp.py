@@ -127,7 +127,7 @@ def getIDS(team_id):
 def getSeason(id):
     games = getIDS(id)
     final_di = {}
-
+    print('Team: ' + str(id))
     for i in range(0, len(games)):
         print('Loading game: ' + str(games[i]))
         if i == 0:
@@ -145,6 +145,8 @@ def getSeason(id):
             time.sleep(random.randint(1, 8))
     print('All games loaded')
     df = pd.DataFrame(final_di)
+    df.insert(0, 'team_focus', str(id))
+
     
     return df
 
@@ -184,6 +186,7 @@ def getStarters(di):
     # Cycle through box score table to get each teams starters
     for i in range(0, len(away_starter_table) - 1):
         s_away.append(away_starter_table[i]['entityLink']['title'].lower())
+    for i in range(0, len(home_starter_table) - 1):
         s_home.append(home_starter_table[i]['entityLink']['title'].lower())
 
     return s_away, s_home
@@ -253,6 +256,8 @@ def getpbp(di):
     half = []
     plays = []
     poss_kindof = []
+    prim_key = []
+    cnt = 0
 
     # Pattern to be used on lineup change plays and get new players for each team
     lineup_pattern = r"\((.*?)\)"
@@ -288,6 +293,8 @@ def getpbp(di):
 
             # General scraping for data and adding each entry to the appropriate list
             game_id.append(g_id)
+            prim_key.append(str(g_id) + '_' + str(cnt))
+            cnt += 1
             game_date.append(g_date)
             plays.append(x['playDescription'].lower())
             clock.append(x['timeOfPlay'])
@@ -600,6 +607,7 @@ def getpbp(di):
     # Combine all lists into dictionary format
     new_di = {
     'game_id' : game_id,
+    'prim_key' : prim_key,
     'game_date' : game_date,
     'team_away' : at_list,
     'team_home' : ht_list,

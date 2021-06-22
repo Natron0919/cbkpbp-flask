@@ -7,7 +7,7 @@
     <body>
         <h1>{{team}} Overview</h1>
         <div id="selectPlayers">
-            <form action='/final' method="POST">
+            <form method="POST">
                 <select name="player1" method="GET">
                     <option label=" "></option>
                     {% for player in roster %}
@@ -43,25 +43,24 @@
         </div>
         <div id="completedata">
             <div id="fourFactors">
-                <h3>Four Factors</h3>
-                <span>eFG%: {{four_di['eFG%']}}%</span><br>
-                <span>TO%: {{four_di['TO%']}}%</span><br>
-                <span>OR%: {{four_di['OR%']}}%</span><br>
-                <span>FTRate: {{four_di['FTRate']}}%</span><br>
-            </div>
-            <div id="additionalStats">
-                <h3>Additional Stats</h3>
-                {% for key, value in new_di.items() %}
-                    <p>{{key}}: {{value}}</p>
-                {% endfor %}
+                <h3>Complete Four Factors</h3>
+                <span>eFG%: {{four_di_complete['eFG%']}}%</span><br>
+                <span>TO%: {{four_di_complete['TO%']}}%</span><br>
+                <span>OR%: {{four_di_complete['OR%']}}%</span><br>
+                <span>FTRate: {{four_di_complete['FTRate']}}%</span><br>
+                <span>Possessions_O: {{stat_di_complete['Poss_O']}}</span>
+                <span>Possessions_D: {{stat_di_complete['Poss_D']}}</span>
+
             </div>
         </div>
         <div id="filterdata">
-            {% if four_di_filter %}
-                {% for key, value in four_di_filter %}
-                    <p>{{key}}: {{value}}</p>
-                {% endfor %}
-            {% endif %}
+            <h3>Filtered Four Factors</h3>
+                <span>eFG%: {{four_di_filter['eFG%']}}%</span><br>
+                <span>TO%: {{four_di_filter['TO%']}}%</span><br>
+                <span>OR%: {{four_di_filter['OR%']}}%</span><br>
+                <span>FTRate: {{four_di_filter['FTRate']}}%</span><br>
+                <span>Possessions_O: {{stat_di_filter['Poss_O']}}</span>
+                <span>Possessions_D: {{stat_di_filter['Poss_D']}}</span>
         </div>
     </body>
 </html>
