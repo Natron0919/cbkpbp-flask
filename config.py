@@ -1,0 +1,7 @@
+"""Flask Config"""
+
+TESTING = True
+DEBUG = True
+FLASK_ENV = 'development'
+SQLALCHEMY_TRACK_MODIFICATIONS = False
+SECRET_KEY = 'N4t23WQpoCITn4'

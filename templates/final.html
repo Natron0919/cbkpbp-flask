@@ -3,6 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <title>Conferences</title>
+        <link rel="stylesheet" href="{{url_for('static', filename='final_style.css')}}">
     </head>
     <body>
         <h1>{{team}} Overview</h1>
@@ -41,26 +42,39 @@
                 <input type='submit' value='Submit' class='btn' />
             </form>
         </div>
-        <div id="completedata">
-            <div id="fourFactors">
-                <h3>Complete Four Factors</h3>
-                <span>eFG%: {{four_di_complete['eFG%']}}%</span><br>
-                <span>TO%: {{four_di_complete['TO%']}}%</span><br>
-                <span>OR%: {{four_di_complete['OR%']}}%</span><br>
-                <span>FTRate: {{four_di_complete['FTRate']}}%</span><br>
-                <span>Possessions_O: {{stat_di_complete['Poss_O']}}</span>
-                <span>Possessions_D: {{stat_di_complete['Poss_D']}}</span>
+        <div class="row">
+            <div id="completedata" class="column">
+                <div id="fourFactors">
+                    <h2>Complete Four Factors</h3>
+                    <span>eFG%: {{four_di_complete['eFG%']}}%</span><br>
+                    <span>TO%: {{four_di_complete['TO%']}}%</span><br>
+                    <span>OR%: {{four_di_complete['OR%']}}%</span><br>
+                    <span>FTRate: {{four_di_complete['FTRate']}}%</span><br>
+                    <span>Possessions_O: {{stat_di_complete['Poss_O']}}</span>
+                    <span>Possessions_D: {{stat_di_complete['Poss_D']}}</span><br>
+                    <a href="{{url_for('download_totalcsv')}}" download="complete_data">Download play-by-play</a>
 
+
+                </div>
             </div>
-        </div>
-        <div id="filterdata">
-            <h3>Filtered Four Factors</h3>
-                <span>eFG%: {{four_di_filter['eFG%']}}%</span><br>
-                <span>TO%: {{four_di_filter['TO%']}}%</span><br>
-                <span>OR%: {{four_di_filter['OR%']}}%</span><br>
-                <span>FTRate: {{four_di_filter['FTRate']}}%</span><br>
-                <span>Possessions_O: {{stat_di_filter['Poss_O']}}</span>
-                <span>Possessions_D: {{stat_di_filter['Poss_D']}}</span>
+            <div id="filterdata" class="column-mid">
+                {% if players %}
+                    <h3>When the following are in the game...</h2>
+                    {% for player in players %}
+                        <p>{{player}}</p>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            <div id="filterdata" class="column">
+                <h2>Filtered Four Factors</h3>
+                    <span>eFG%: {{four_di_filter['eFG%']}}%</span><br>
+                    <span>TO%: {{four_di_filter['TO%']}}%</span><br>
+                    <span>OR%: {{four_di_filter['OR%']}}%</span><br>
+                    <span>FTRate: {{four_di_filter['FTRate']}}%</span><br>
+                    <span>Possessions_O: {{stat_di_filter['Poss_O']}}</span>
+                    <span>Possessions_D: {{stat_di_filter['Poss_D']}}</span> <br>
+                <a href="{{url_for('download_csv')}}" download="filtered_data">Download play-by-play</a>
+            </div>
         </div>
     </body>
 </html>

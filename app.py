@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, session, redirect, url_for
+from flask.helpers import make_response
 from sqlalchemy import create_engine
 import psycopg2
 from flask_sqlalchemy import SQLAlchemy
@@ -7,10 +8,12 @@ import random
 import pandas as pd
 import cbkpbp
 app = Flask(__name__)
-app.debug = True
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql+psycopg2://test:test@localhost:5432/cbkpbp'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app)
+
+# Config stuff
+app.config.from_pyfile('config.py')
+
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql+psycopg2://test:test@localhost:5432/cbkpbp'
+# db = SQLAlchemy(app)
 
 engine = create_engine('postgresql+psycopg2://test:test@localhost:5432/cbkpbp')
 engine.connect()
@@ -19,63 +22,62 @@ engine.connect()
 # mycursor = conn.cursor()
 # SESSION_TYPE = 'sqlalchemy'
 # Session(app)
-rand_num = random.randint(0, 1000)
-app.secret_key = 'supersecretkey' + str(rand_num)
 
-class BasketballPlays(db.Model):
-    __tablename__ = 'plays'
-    index = db.Column(db.Integer)
-    team_focus = db.Column(db.Integer, primary_key = True)
-    game_id = db.Column(db.Integer)
-    prim_key = db.Column(db.String, primary_key = True)
-    game_date = db.Column(db.String)
-    team_away = db.Column(db.String)
-    team_home = db.Column(db.String)
-    players_away = db.Column(db.String)
-    players_home = db.Column(db.String)
-    score_away = db.Column(db.Integer)
-    score_home = db.Column(db.Integer)
-    clock = db.Column(db.String)
-    period = db.Column(db.String)
-    poss_team = db.Column(db.String)
-    poss_team = db.Column(db.String)
-    poss_for_real = db.Column(db.String)
-    poss_id = db.Column(db.String)
-    play_text = db.Column(db.String)
-    o_reb_away = db.Column(db.Boolean)
-    o_reb_home = db.Column(db.Boolean)
-    d_reb_away = db.Column(db.Boolean)
-    d_reb_home = db.Column(db.Boolean)
-    two_fgm_away = db.Column('2fgm_away', db.Boolean)
-    two_fga_away = db.Column('2fga_away', db.Boolean)
-    two_fgm_home = db.Column('2fgm_home', db.Boolean)
-    two_fga_home = db.Column('2fga_home', db.Boolean)
-    three_fgm_away = db.Column('3fgm_away', db.Boolean)
-    three_fga_away = db.Column('3fga_away', db.Boolean)
-    three_fgm_home = db.Column('3fgm_home', db.Boolean)
-    three_fga_home = db.Column('3fga_home', db.Boolean)
-    ftm_away = db.Column(db.Boolean)
-    fta_away = db.Column(db.Boolean)
-    ftm_home = db.Column(db.Boolean)
-    fta_home = db.Column(db.Boolean)
-    assist_away = db.Column(db.Boolean)
-    assist_home = db.Column(db.Boolean)
-    to_away = db.Column(db.Boolean)
-    to_home = db.Column(db.Boolean)
-    foul_away = db.Column(db.Boolean)
-    foul_home = db.Column(db.Boolean)
+# class BasketballPlays(db.Model):
+#     __tablename__ = 'plays'
+#     index = db.Column(db.Integer)
+#     team_focus = db.Column(db.Integer, primary_key = True)
+#     game_id = db.Column(db.Integer)
+#     prim_key = db.Column(db.String, primary_key = True)
+#     game_date = db.Column(db.String)
+#     team_away = db.Column(db.String)
+#     team_home = db.Column(db.String)
+#     players_away = db.Column(db.String)
+#     players_home = db.Column(db.String)
+#     score_away = db.Column(db.Integer)
+#     score_home = db.Column(db.Integer)
+#     clock = db.Column(db.String)
+#     period = db.Column(db.String)
+#     poss_team = db.Column(db.String)
+#     poss_team = db.Column(db.String)
+#     poss_for_real = db.Column(db.String)
+#     poss_id = db.Column(db.String)
+#     play_text = db.Column(db.String)
+#     o_reb_away = db.Column(db.Boolean)
+#     o_reb_home = db.Column(db.Boolean)
+#     d_reb_away = db.Column(db.Boolean)
+#     d_reb_home = db.Column(db.Boolean)
+#     two_fgm_away = db.Column('2fgm_away', db.Boolean)
+#     two_fga_away = db.Column('2fga_away', db.Boolean)
+#     two_fgm_home = db.Column('2fgm_home', db.Boolean)
+#     two_fga_home = db.Column('2fga_home', db.Boolean)
+#     three_fgm_away = db.Column('3fgm_away', db.Boolean)
+#     three_fga_away = db.Column('3fga_away', db.Boolean)
+#     three_fgm_home = db.Column('3fgm_home', db.Boolean)
+#     three_fga_home = db.Column('3fga_home', db.Boolean)
+#     ftm_away = db.Column(db.Boolean)
+#     fta_away = db.Column(db.Boolean)
+#     ftm_home = db.Column(db.Boolean)
+#     fta_home = db.Column(db.Boolean)
+#     assist_away = db.Column(db.Boolean)
+#     assist_home = db.Column(db.Boolean)
+#     to_away = db.Column(db.Boolean)
+#     to_home = db.Column(db.Boolean)
+#     foul_away = db.Column(db.Boolean)
+#     foul_home = db.Column(db.Boolean)
 
-    def __repr__(self):
-        return '<BasketballPlays %r>' % self.team_focus
+#     def __repr__(self):
+#         return '<BasketballPlays %r>' % self.team_focus
 
 
 @app.route("/")
 def selectConference():
-    con_list = []
-    conferences = cbkpbp.getConferences()
-    for i in range(0, len(conferences)):
-        con_list.append(conferences[i]['conference'])
-    conferences = con_list
+    # con_list = []
+    # conferences = cbkpbp.getConferences()
+    # for i in range(0, len(conferences)):
+    #     con_list.append(conferences[i]['conference'])
+    # conferences = con_list
+    conferences = ['atlantic coast', 'big 12', 'big ten', 'southeastern']
     return render_template('index.html', conferences = conferences)
 
 @app.route("/team", methods=['GET', 'POST'])
@@ -110,9 +112,6 @@ def getData():
         # df = cbkpbp.getSeason(id)
         session['id_global'] = id
         df = pd.read_sql_query("""SELECT * FROM public.plays WHERE team_focus = %s""", engine, params=[id])
-        df_maybe = pd.read_sql(session.query(BasketballPlays).filter(BasketballPlays.team_focus == id).statement, session.bind)
-        print(df_maybe.head())
-        print(type(df_maybe))
         four_di = cbkpbp.getFour(df, team)
         new_di = cbkpbp.getStats(df, team)
         roster = cbkpbp.getRoster(id)
@@ -131,13 +130,41 @@ def filter():
         stat_di_complete = cbkpbp.getStats(df, team)
         players = [request.form.get('player1', None), request.form.get('player2', None), request.form.get('player3', None), request.form.get('player4', None), request.form.get('player5', None)]
         players = [x for x in players if x != '']
+        session['players_latest'] = players
         df_filter = cbkpbp.filterdf(df, players)
+
+
+
         four_di_filter = cbkpbp.getFour(df_filter, team)
         stat_di_filter = cbkpbp.getStats(df_filter, team)
         print(players)
 
     return render_template('final.html', team = team, conference = conference, roster = roster, four_di_complete = four_di_complete,
-    four_di_filter = four_di_filter, stat_di_complete = stat_di_complete, stat_di_filter = stat_di_filter)
+    four_di_filter = four_di_filter, stat_di_complete = stat_di_complete, stat_di_filter = stat_di_filter, 
+    players = players)
+
+@app.route("/downloadcsv")
+def download_csv():
+    id = session.get('id_global', None)
+    df = pd.read_sql_query("""SELECT * FROM public.plays WHERE team_focus = %s""", engine, params=[id])
+    df_filter = cbkpbp.filterdf(df, session.get("players_latest", None))
+    resp = make_response(df_filter.to_csv())
+    resp.headers["Content-Disposition"] = "attachment; filename=filtered_data.csv"
+    resp.mimetype='text/csv'
+
+    return resp
+
+@app.route("/downloadtotalcsv")
+def download_totalcsv():
+    id = session.get('id_global', None)
+    df = pd.read_sql_query("""SELECT * FROM public.plays WHERE team_focus = %s""", engine, params=[id])
+    resp = make_response(df.to_csv())
+    resp.headers["Content-Disposition"] = "attachment; filename=complete_data.csv"
+    resp.mimetype='text/csv'
+
+    return resp
+
+
 
 
 if __name__ == "__main__":

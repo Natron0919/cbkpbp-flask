@@ -1,0 +1,18 @@
+body {
+    background-color: lightblue;
+
+}
+
+.row {
+    display: flex;
+}
+
+.column {
+    flex: 40%;
+}
+.column-mid {
+    flex: 20%;
+}
+#filterdata {
+    border: maroon;
+}

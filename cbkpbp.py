@@ -130,19 +130,22 @@ def getSeason(id):
     print('Team: ' + str(id))
     for i in range(0, len(games)):
         print('Loading game: ' + str(games[i]))
-        if i == 0:
-            di = getPage(game_id = games[i])
-            df = getpbp(di)
-            dic = df.to_dict(orient = 'list')
-            final_di = dic
-            time.sleep(random.randint(1, 10))
-        else:
-            di = getPage(game_id = games[i])
-            df = getpbp(di)
-            dic = df.to_dict(orient = 'list')
-            for x in final_di.keys():
-                final_di[x].extend(dic[x])
-            time.sleep(random.randint(1, 8))
+        try:
+            if i == 0:
+                di = getPage(game_id = games[i])
+                df = getpbp(di)
+                dic = df.to_dict(orient = 'list')
+                final_di = dic
+                time.sleep(random.randint(1, 10))
+            else:
+                di = getPage(game_id = games[i])
+                df = getpbp(di)
+                dic = df.to_dict(orient = 'list')
+                for x in final_di.keys():
+                    final_di[x].extend(dic[x])
+                time.sleep(random.randint(1, 8))
+        except:
+            print('Game ' + str(games[i]) + ' failed to load')
     print('All games loaded')
     df = pd.DataFrame(final_di)
     df.insert(0, 'team_focus', str(id))
@@ -689,6 +692,7 @@ def getStats(df, team):
     # eFG%
     try:
         eFG = (1.5*three_fgm + fgm) / fga
+        eFG = round(eFG*100, 2)
     except:
         eFG = 'N/A'
 
@@ -714,6 +718,7 @@ def getStats(df, team):
     # Turnover %
     try:
         to_pct = to / p_o
+        to_pct = round(to_pct*100, 2)
     except:
         to_pct = 'N/A'
 
@@ -736,6 +741,7 @@ def getStats(df, team):
     # Offensive rebounding %
     try:
         or_pct = o_reb / (o_reb + d_reb_opp)
+        or_pct = round(or_pct*100, 2)
     except:
         or_pct = 'N/A'
 
@@ -751,6 +757,7 @@ def getStats(df, team):
 
     try:
         ftrate = fta/fga
+        ftrate = round(ftrate*100, 2)
     except:
         ftrate = 'N/A'
 
@@ -760,147 +767,150 @@ def getStats(df, team):
         '3FGM' : three_fgm,
         '3FGA' : three_fga,
         'FGA' : fga,
-        'eFG%' : round(eFG*100,2),
+        'eFG%' : eFG,
         'TO' : to,
-        'TO%' : round(to_pct*100,2),
+        'TO%' : to_pct,
         'Assists' : assist,
         'OFF REB' : o_reb,
         'DEF REB' : d_reb,
         'OPP OFF REB' : o_reb_opp,
         'OPP DEF REB' : d_reb_opp,
-        'OR%' : round(or_pct*100,2),
+        'OR%' : or_pct,
         'FTM' : ftm,
         'FTA' : fta,
-        'FTRate' : round(ftrate*100, 2),
+        'FTRate' : ftrate,
         'Poss_O' : p_o,
         'Poss_D' : p_d
     }
 
-    print('')
+    # print('')
 
-    print('2FGM: ' + str(fgm))
-    print('2FGA: ' + str(two_fga))
-    print('3FGM: ' + str(three_fgm))
-    print('3FGA: ' + str(three_fga))
-    print('FGA: ' + str(fga))
-    print('eFG% = ' + str(eFG * 100) + '% \n')
+    # print('2FGM: ' + str(fgm))
+    # print('2FGA: ' + str(two_fga))
+    # print('3FGM: ' + str(three_fgm))
+    # print('3FGA: ' + str(three_fga))
+    # print('FGA: ' + str(fga))
+    # print('eFG% = ' + str(eFG * 100) + '% \n')
 
-    print('TO: ' + str(to))
-    print('TO% = ' + str(to_pct * 100) + '% \n')
-    print('Assists: ' + str(assist))
+    # print('TO: ' + str(to))
+    # print('TO% = ' + str(to_pct * 100) + '% \n')
+    # print('Assists: ' + str(assist))
 
-    print('Off. Rebounds: ' + str(o_reb))
-    print('Def. Rebounds: ' + str(d_reb))
-    print('Opponent Off. Rebounds: ' + str(o_reb_opp))
-    print('Opponent Def. Rebounds: ' + str(d_reb_opp))
-    print('OR% = ' + str(or_pct * 100) + '% \n')
+    # print('Off. Rebounds: ' + str(o_reb))
+    # print('Def. Rebounds: ' + str(d_reb))
+    # print('Opponent Off. Rebounds: ' + str(o_reb_opp))
+    # print('Opponent Def. Rebounds: ' + str(d_reb_opp))
+    # print('OR% = ' + str(or_pct * 100) + '% \n')
 
-    print('FTM: ' + str(ftm))
-    print('FTA: ' + str(fta))
-    print('FGA: ' + str(fga))
-    print('FTRate = ' + str(ftrate * 100) + '%')
-    print('\n')
-    print('Possessions_Off: ' + str(p_o))
-    print('Possessions_Def: ' + str(p_d))
+    # print('FTM: ' + str(ftm))
+    # print('FTA: ' + str(fta))
+    # print('FGA: ' + str(fga))
+    # print('FTRate = ' + str(ftrate * 100) + '%')
+    # print('\n')
+    # print('Possessions_Off: ' + str(p_o))
+    # print('Possessions_Def: ' + str(p_d))
 
     return new_di
 
 def getFour(df, team):
+
     df_a = df[df['team_away'] == team]
     df_h = df[df['team_home'] == team]
 
     # Effective field goal percentage eFG% = (1.5*3fgm + 2fgm) / total_fga
-    three_fgm_a = df_a[df_a['3fgm_away'] == True].shape[0]
-    three_fgm_h = df_h[df_h['3fgm_home'] == True].shape[0]
-    three_fgm = three_fgm_a + three_fgm_h
-
-    fgm_a = df_a[df_a['2fgm_away'] == True].shape[0]
-    fgm_h = df_h[df_h['2fgm_home'] == True].shape[0]
-    fgm = fgm_a + fgm_h
-
-    fga_a = df_a[df_a['2fga_away'] == True].shape[0] + df_a[df_a['3fga_away'] == True].shape[0]
-    fga_h = df_h[df_h['2fga_home'] == True].shape[0] + df_h[df_h['3fga_home'] == True].shape[0]
-    fga = fga_a + fga_h
-
     try:
+        three_fgm_a = df_a[df_a['3fgm_away'] == True].shape[0]
+        three_fgm_h = df_h[df_h['3fgm_home'] == True].shape[0]
+        three_fgm = three_fgm_a + three_fgm_h
+
+        fgm_a = df_a[df_a['2fgm_away'] == True].shape[0]
+        fgm_h = df_h[df_h['2fgm_home'] == True].shape[0]
+        fgm = fgm_a + fgm_h
+
+        fga_a = df_a[df_a['2fga_away'] == True].shape[0] + df_a[df_a['3fga_away'] == True].shape[0]
+        fga_h = df_h[df_h['2fga_home'] == True].shape[0] + df_h[df_h['3fga_home'] == True].shape[0]
+        fga = fga_a + fga_h
+
         eFG = (1.5*three_fgm + fgm) / fga
+        eFG = round(eFG*100, 2)
     except:
         eFG = 'N/A'
 
     # Turnover percentage TO% = TO / possessions 
-    to_a = df_a[df_a['to_away'] == True].shape[0]
-    to_h = df_h[df_h['to_home'] == True].shape[0]
-    to = to_a + to_h
-
-    p_o_a = len(df_a[df_a['poss_for_real'] == team]['poss_id'].unique())
-    p_o_h = len(df_h[df_h['poss_for_real'] == team]['poss_id'].unique())
-    p_o = p_o_a + p_o_h
-
-    p_d_a = len(df_a[(df_a['poss_for_real'] != team) & (df_a['poss_for_real'] != 'NULL')]['poss_id'].unique())
-    p_d_h = len(df_h[(df_h['poss_for_real'] != team) & (df_h['poss_for_real'] != 'NULL')]['poss_id'].unique())
-    p_d = p_d_a + p_d_h
-
-    # possessions = p_o + p_d
-
     try:
+        to_a = df_a[df_a['to_away'] == True].shape[0]
+        to_h = df_h[df_h['to_home'] == True].shape[0]
+        to = to_a + to_h
+
+        p_o_a = len(df_a[df_a['poss_for_real'] == team]['poss_id'].unique())
+        p_o_h = len(df_h[df_h['poss_for_real'] == team]['poss_id'].unique())
+        p_o = p_o_a + p_o_h
+
+        # p_d_a = len(df_a[(df_a['poss_for_real'] != team) & (df_a['poss_for_real'] != 'NULL')]['poss_id'].unique())
+        # p_d_h = len(df_h[(df_h['poss_for_real'] != team) & (df_h['poss_for_real'] != 'NULL')]['poss_id'].unique())
+        # p_d = p_d_a + p_d_h
+
         to_pct = to / p_o
+        to_pct = round(to_pct*100, 2)
     except:
         to_pct = 'N/A'
 
     # Offensive rebounding percentage OR% = OR / (OR + DR_opp)
-    o_reb_a = df_a[df_a['o_reb_away'] == True].shape[0]
-    o_reb_h = df_h[df_h['o_reb_home'] == True].shape[0]
-    o_reb = o_reb_a + o_reb_h
-
-    d_reb_opp_a = df_a[df_a['d_reb_home'] == True].shape[0]
-    d_reb_opp_h = df_h[df_h['d_reb_away'] == True].shape[0]
-    d_reb_opp = d_reb_opp_a + d_reb_opp_h
-
     try:
+        o_reb_a = df_a[df_a['o_reb_away'] == True].shape[0]
+        o_reb_h = df_h[df_h['o_reb_home'] == True].shape[0]
+        o_reb = o_reb_a + o_reb_h
+
+        d_reb_opp_a = df_a[df_a['d_reb_home'] == True].shape[0]
+        d_reb_opp_h = df_h[df_h['d_reb_away'] == True].shape[0]
+        d_reb_opp = d_reb_opp_a + d_reb_opp_h
+
         or_pct = o_reb / (o_reb + d_reb_opp)
+        or_pct = round(or_pct*100, 2)
     except:
         or_pct = 'N/A'
 
 
     # Free throw rate FTRate = FTA/FGA
-    fta_a = df_a[df_a['fta_away'] == True].shape[0]
-    fta_h = df_h[df_h['fta_home'] == True].shape[0]
-    fta = fta_a + fta_h
-
-    fga_a = df_a[df_a['2fga_away'] == True].shape[0] + df_a[df_a['3fga_away'] == True].shape[0]
-    fga_h = df_h[df_h['2fga_home'] == True].shape[0] + df_h[df_h['3fga_home'] == True].shape[0]
-    fga = fga_a + fga_h
-
     try:
+        fta_a = df_a[df_a['fta_away'] == True].shape[0]
+        fta_h = df_h[df_h['fta_home'] == True].shape[0]
+        fta = fta_a + fta_h
+
+        fga_a = df_a[df_a['2fga_away'] == True].shape[0] + df_a[df_a['3fga_away'] == True].shape[0]
+        fga_h = df_h[df_h['2fga_home'] == True].shape[0] + df_h[df_h['3fga_home'] == True].shape[0]
+        fga = fga_a + fga_h
+
         ftrate = fta/fga
+        ftrate = round(ftrate*100, 2)
     except:
         ftrate = 'N/A'
 
     four_di = {
-        'eFG%' : round(eFG*100, 2),
-        'TO%' : round(to_pct*100, 2),
-        'OR%' : round(or_pct*100, 2),
-        'FTRate' : round(ftrate*100, 2)
+        'eFG%' : eFG,
+        'TO%' : to_pct,
+        'OR%' : or_pct,
+        'FTRate' : ftrate
     }
 
-    print('2FGM: ' + str(fgm))
-    print('3FGM: ' + str(three_fgm))
-    print('FGA: ' + str(fga))
-    print('eFG% = ' + str(round(eFG * 100, 2)) + '% \n')
+    # print('2FGM: ' + str(fgm))
+    # print('3FGM: ' + str(three_fgm))
+    # print('FGA: ' + str(fga))
+    # print('eFG% = ' + str(eFG) + '% \n')
 
-    print('TO: ' + str(to))
-    print('TO% = ' + str(round(to_pct * 100, 2)) + '% \n')
+    # print('TO: ' + str(to))
+    # print('TO% = ' + str(to_pct) + '% \n')
 
-    print('Off. Rebounds: ' + str(o_reb))
-    print('Opponent Def. Rebounds: ' + str(d_reb_opp))
-    print('OR% = ' + str(round(or_pct * 100, 2)) + '% \n')
+    # print('Off. Rebounds: ' + str(o_reb))
+    # print('Opponent Def. Rebounds: ' + str(d_reb_opp))
+    # print('OR% = ' + str(or_pct) + '% \n')
 
-    print('FTA: ' + str(fta))
-    print('FGA: ' + str(fga))
-    print('FTRate = ' + str(round(ftrate * 100, 2)) + '%')
-    print('\n')
-    print('Possessions_Off: ' + str(p_o))
-    print('Possessions_Def: ' + str(p_d))
+    # print('FTA: ' + str(fta))
+    # print('FGA: ' + str(fga))
+    # print('FTRate = ' + str(ftrate) + '%')
+    # print('\n')
+    # print('Possessions_Off: ' + str(p_o))
+    # print('Possessions_Def: ' + str(p_d))
 
     return four_di
 
