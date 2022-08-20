@@ -178,9 +178,7 @@ year_col = []
 engine = create_engine("mysql+pymysql://{user}:{pw}@{host}/{db}".format(host=hostname, db=dbname, user=uname, pw=pwd))
 connection = engine.connect()
 
-myresult = pd.read_sql('SELECT * FROM pbp WHERE team_home = "Clemson" OR team_away = "Clemson"', con=connection)
+team = 'Virginia Tech'
+myresult = pd.read_sql_query("""SELECT * FROM pbp WHERE team_home = %s OR team_away = %s""", engine, params=[team, team])
 
-stats = ncaastats.getStats(myresult, "Clemson")
-
-ncaastats.getFour(myresult, 'Clemson')
 # %%

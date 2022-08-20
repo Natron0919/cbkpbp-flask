@@ -1,83 +1,32 @@
+#%%
+
 from flask import Flask, render_template, request, session, redirect, url_for
 from flask.helpers import make_response
-from sqlalchemy import create_engine
-import psycopg2
-from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import alias, create_engine
 # from flask_session import Session
 import random
 import pandas as pd
-import cbkpbp
+import ncaastats
 app = Flask(__name__)
 
 # Config stuff
 app.config.from_pyfile('config.py')
 
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql+psycopg2://test:test@localhost:5432/cbkpbp'
-# db = SQLAlchemy(app)
+# Credentials to database connection
+hostname="localhost"
+dbname="cbkpbp"
+uname="test"
+pwd="test"
 
-engine = create_engine('postgresql+psycopg2://test:test@localhost:5432/cbkpbp')
-engine.connect()
-
-# conn = psycopg2.connect(database='cbkpbp', user='test', password='test', host='localhost')
-# mycursor = conn.cursor()
-# SESSION_TYPE = 'sqlalchemy'
-# Session(app)
-
-# class BasketballPlays(db.Model):
-#     __tablename__ = 'plays'
-#     index = db.Column(db.Integer)
-#     team_focus = db.Column(db.Integer, primary_key = True)
-#     game_id = db.Column(db.Integer)
-#     prim_key = db.Column(db.String, primary_key = True)
-#     game_date = db.Column(db.String)
-#     team_away = db.Column(db.String)
-#     team_home = db.Column(db.String)
-#     players_away = db.Column(db.String)
-#     players_home = db.Column(db.String)
-#     score_away = db.Column(db.Integer)
-#     score_home = db.Column(db.Integer)
-#     clock = db.Column(db.String)
-#     period = db.Column(db.String)
-#     poss_team = db.Column(db.String)
-#     poss_team = db.Column(db.String)
-#     poss_for_real = db.Column(db.String)
-#     poss_id = db.Column(db.String)
-#     play_text = db.Column(db.String)
-#     o_reb_away = db.Column(db.Boolean)
-#     o_reb_home = db.Column(db.Boolean)
-#     d_reb_away = db.Column(db.Boolean)
-#     d_reb_home = db.Column(db.Boolean)
-#     two_fgm_away = db.Column('2fgm_away', db.Boolean)
-#     two_fga_away = db.Column('2fga_away', db.Boolean)
-#     two_fgm_home = db.Column('2fgm_home', db.Boolean)
-#     two_fga_home = db.Column('2fga_home', db.Boolean)
-#     three_fgm_away = db.Column('3fgm_away', db.Boolean)
-#     three_fga_away = db.Column('3fga_away', db.Boolean)
-#     three_fgm_home = db.Column('3fgm_home', db.Boolean)
-#     three_fga_home = db.Column('3fga_home', db.Boolean)
-#     ftm_away = db.Column(db.Boolean)
-#     fta_away = db.Column(db.Boolean)
-#     ftm_home = db.Column(db.Boolean)
-#     fta_home = db.Column(db.Boolean)
-#     assist_away = db.Column(db.Boolean)
-#     assist_home = db.Column(db.Boolean)
-#     to_away = db.Column(db.Boolean)
-#     to_home = db.Column(db.Boolean)
-#     foul_away = db.Column(db.Boolean)
-#     foul_home = db.Column(db.Boolean)
-
-#     def __repr__(self):
-#         return '<BasketballPlays %r>' % self.team_focus
+engine = create_engine("mysql+pymysql://{user}:{pw}@{host}/{db}".format(host=hostname, db=dbname, user=uname, pw=pwd))
+connection = engine.connect()
 
 
 @app.route("/")
 def selectConference():
-    # con_list = []
-    # conferences = cbkpbp.getConferences()
-    # for i in range(0, len(conferences)):
-    #     con_list.append(conferences[i]['conference'])
-    # conferences = con_list
-    conferences = ['atlantic coast', 'big 12', 'big ten', 'southeastern']
+    con_list = pd.read_sql_query("""SELECT DISTINCT conference FROM team""", engine)
+    conferences = [str(x) for x in con_list['conference']]
+    conferences.sort()
     return render_template('index.html', conferences = conferences)
 
 @app.route("/team", methods=['GET', 'POST'])
@@ -85,58 +34,52 @@ def selectTeam():
     if request.method == 'POST':
         conference = request.form['conferences']
         session['global_con'] = conference
-        teams = cbkpbp.getTeams(conference)
-        team_list = []
-        for i in range(0, len(teams)):
-            team_list.append(teams[i]['team'])
-        teams = team_list
-        return render_template('team.html', teams = teams, conference = conference)
+        team_list = pd.read_sql_query("""SELECT team_name FROM team WHERE conference = %s""", engine, params=[conference])
+        team_list = [str(x) for x in team_list['team_name']]
+        team_list.sort()
+        return render_template('team.html', teams = team_list, conference = conference)
     elif request.method == 'GET':
         return redirect(url_for('selectConference'))
 
 @app.route("/data", methods=['GET', 'POST'])
 def getData():
     if request.method == 'POST':
-        id = None
         team = request.form['teams']
         session['team_global'] = team
         conference = session.get('global_con', None)
         print(conference)
         print(team)
-        di = cbkpbp.getTeams(conference)
-        for i in range(0, len(di)):
-            if di[i]['team'] == team:
-                id = di[i]['id']
-        if id == None:
-            return 'Not a proper team selection'
-        # df = cbkpbp.getSeason(id)
-        session['id_global'] = id
-        df = pd.read_sql_query("""SELECT * FROM public.plays WHERE team_focus = %s""", engine, params=[id])
-        four_di = cbkpbp.getFour(df, team)
-        new_di = cbkpbp.getStats(df, team)
-        roster = cbkpbp.getRoster(id)
+        pbp = pd.read_sql_query("""SELECT * FROM pbp WHERE team_away = %s OR team_home = %s""", engine, params=[team.strip(), team.strip()])
+        team_id = pd.read_sql_query("""SELECT team_id FROM team WHERE team_name = %s""", engine, params=[team])
+        team_id = team_id['team_id']
+        team_id = str(team_id[0])
+        print(team_id)
+        four_di = ncaastats.getFour(pbp, team.strip())
+        new_di = ncaastats.getStats(pbp, team.strip())
+        roster = pd.read_sql_query("""SELECT name_mneumonic FROM player WHERE team_id = %s""", engine, params=[team_id])
+        roster = [str(x) for x in roster['name_mneumonic']]
         session['roster_global'] = roster
     return render_template('data.html', team = team, conference = conference, new_di = new_di, four_di = four_di, roster = roster)
+
 
 @app.route("/final", methods = ["GET", "POST"])
 def filter():
     if request.method == "POST":
-        id = session.get('id_global', None)
-        df = pd.read_sql_query("""SELECT * FROM public.plays WHERE team_focus = %s""", engine, params=[id])
+        team = session.get('team_global', None)
+        pbp = pd.read_sql_query("""SELECT * FROM pbp WHERE team_away = %s OR team_home = %s""", engine, params=[team.strip(), team.strip()])
         roster = session.get("roster_global", None)
-        team = session.get("team_global", None)
         conference = session.get("global_con", None)
-        four_di_complete = cbkpbp.getFour(df, team)
-        stat_di_complete = cbkpbp.getStats(df, team)
+        four_di_complete = ncaastats.getFour(pbp, team.strip())
+        stat_di_complete = ncaastats.getStats(pbp, team.strip())
         players = [request.form.get('player1', None), request.form.get('player2', None), request.form.get('player3', None), request.form.get('player4', None), request.form.get('player5', None)]
         players = [x for x in players if x != '']
         session['players_latest'] = players
-        df_filter = cbkpbp.filterdf(df, players)
+        df_filter = ncaastats.filterdf(pbp, players)
 
 
 
-        four_di_filter = cbkpbp.getFour(df_filter, team)
-        stat_di_filter = cbkpbp.getStats(df_filter, team)
+        four_di_filter = ncaastats.getFour(df_filter, team.strip())
+        stat_di_filter = ncaastats.getStats(df_filter, team.strip())
         print(players)
 
     return render_template('final.html', team = team, conference = conference, roster = roster, four_di_complete = four_di_complete,
@@ -145,9 +88,9 @@ def filter():
 
 @app.route("/downloadcsv")
 def download_csv():
-    id = session.get('id_global', None)
-    df = pd.read_sql_query("""SELECT * FROM public.plays WHERE team_focus = %s""", engine, params=[id])
-    df_filter = cbkpbp.filterdf(df, session.get("players_latest", None))
+    team = session.get('team_global', None)
+    pbp = pd.read_sql_query("""SELECT * FROM pbp WHERE team_away = %s OR team_home = %s""", engine, params=[team.strip(), team.strip()])
+    df_filter = ncaastats.filterdf(pbp, session.get("players_latest", None))
     resp = make_response(df_filter.to_csv())
     resp.headers["Content-Disposition"] = "attachment; filename=filtered_data.csv"
     resp.mimetype='text/csv'
@@ -156,9 +99,9 @@ def download_csv():
 
 @app.route("/downloadtotalcsv")
 def download_totalcsv():
-    id = session.get('id_global', None)
-    df = pd.read_sql_query("""SELECT * FROM public.plays WHERE team_focus = %s""", engine, params=[id])
-    resp = make_response(df.to_csv())
+    team = session.get('team_global', None)
+    pbp = pd.read_sql_query("""SELECT * FROM pbp WHERE team_away = %s OR team_home = %s""", engine, params=[team.strip(), team.strip()])
+    resp = make_response(pbp.to_csv())
     resp.headers["Content-Disposition"] = "attachment; filename=complete_data.csv"
     resp.mimetype='text/csv'
 

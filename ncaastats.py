@@ -847,6 +847,18 @@ def getYearlyTeamIds(id):
 
     return yearly_id[0]
 
+def filterdf(df, selection):
+    if type(selection) != list:
+        selection = [selection]
+
+    mask = df.lineup_away.apply(lambda x: all(l in x for l in selection))
+    df1 = df[mask]
+    mask2 = df.lineup_home.apply(lambda x: all(l in x for l in selection))
+    df2 = df[mask2]
+    new_df = pd.concat([df1, df2])
+
+    return new_df
+
 
 
 

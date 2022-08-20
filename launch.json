@@ -1,0 +1,10 @@
+{
+    "name": "Python: Flask",
+    "type": "python",
+    "request": "launch",
+    "module": "flask",
+    "env": { "FLASK_APP": "app.py", "FLASK_ENV": "development" },
+    "args": ["run"],
+    "args_": ["run", "--no-debugger"],      
+    "jinja": true
+  }
